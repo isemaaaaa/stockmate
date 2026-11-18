@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockMate - Reports</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Print-specific styles to hide everything except the report itself */
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #printableReport, #printableReport * {
+                visibility: visible;
+            }
+            #printableReport {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+            /* Hide the print button when printing */
+            .no-print {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="wrapper d-flex">
+        <!-- LEFT SIDEBAR -->
+        <aside id="sidebar" class="bg-navy text-white">
+            <div class="sidebar-logo d-flex align-items-center justify-content-center py-4">
+                <h3 class="fw-bold mb-0"><i class="fa-solid fa-boxes-stacked me-2"></i>StockMate</h3>
+            </div>
+            <ul class="nav flex-column sidebar-nav mt-3">
+                <li class="nav-item"><a href="dashboard.html" class="nav-link active"><i class="fa-solid fa-chart-pie me-2"></i> Dashboard</a></li>
+                <li class="nav-item"><a href="products.html" class="nav-link"><i class="fa-solid fa-box me-2"></i> Products</a></li>
+                <li class="nav-item"><a href="categories.html" class="nav-link"><i class="fa-solid fa-tags me-2"></i> Categories</a></li>
+                <li class="nav-item"><a href="suppliers.html" class="nav-link"><i class="fa-solid fa-truck-field me-2"></i> Suppliers</a></li>
+                <li class="nav-item"><a href="stock-in.html" class="nav-link"><i class="fa-solid fa-arrow-right-to-bracket me-2"></i> Stock In</a></li>
+                <li class="nav-item"><a href="stock-out.html" class="nav-link"><i class="fa-solid fa-arrow-right-from-bracket me-2"></i> Stock Out</a></li>
+                <li class="nav-item"><a href="stock-history.html" class="nav-link"><i class="fa-solid fa-clock-rotate-left me-2"></i> Stock History</a></li>
+                <li class="nav-item"><a href="reports.html" class="nav-link"><i class="fa-solid fa-file-invoice me-2"></i> Reports</a></li>
+                <li class="nav-item"><a href="settings.html" class="nav-link"><i class="fa-solid fa-gear me-2"></i> Settings</a></li>
+            </ul>
+            <div class="sidebar-footer mt-auto p-3">
+                <button id="logoutBtn" class="btn btn-outline-light w-100"><i class="fa-solid fa-sign-out-alt me-2"></i> Logout</button>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <div class="main-content flex-grow-1 bg-light-grey">
+            <!-- TOP NAVIGATION -->
+            <nav class="navbar navbar-expand-lg bg-white shadow-sm px-4 py-3">
+                <div class="d-flex align-items-center w-100">
+                    <button class="btn btn-light d-lg-none me-3" id="sidebarToggle"><i class="fa-solid fa-bars"></i></button>
+                    <h4 class="mb-0 fw-bold text-navy page-title">Reports & Analytics</h4>
+                    
+                    <div class="ms-auto d-flex align-items-center">
+                        <div class="d-flex align-items-center">
+                            <div class="me-2 text-end d-none d-md-block">
+                                <p class="mb-0 fw-bold small" id="topNavName">Admin User</p>
+                                <p class="mb-0 text-muted" style="font-size: 0.75rem;" id="topNavRole">Administrator</p>
+                            </div>
+                            <img src="https://ui-avatars.com/api/?name=Admin+User&background=172D4D&color=fff" alt="Profile" class="rounded-circle" width="40">
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- REPORTS CONTENT -->
+            <div class="container-fluid p-4">
+                
+                <!-- Report Generator Controls -->
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="mb-0 fw-bold text-navy">Generate Report</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="reportForm" class="row g-3 align-items-end">
+                            <div class="col-md-4">
+                                <label class="form-label text-muted small fw-bold">Select Report Type</label>
+                                <select id="reportType" class="form-select" required>
+                                    <option value="inventory">Current Inventory Valuation</option>
+                                    <option value="lowstock">Low Stock Alerts</option>
+                                    <option value="transactions">Transaction Summary (In/Out)</option>
+                                </select>
+                            </div>
+                            <!-- Date filters only needed for transactions, hidden by default -->
+                            <div class="col-md-3 date-filter" style="display: none;">
+                                <label class="form-label text-muted small fw-bold">From Date</label>
+                                <input type="date" id="reportDateFrom" class="form-control">
+                            </div>
+                            <div class="col-md-3 date-filter" style="display: none;">
+                                <label class="form-label text-muted small fw-bold">To Date</label>
+                                <input type="date" id="reportDateTo" class="form-control">
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-navy w-100 fw-bold">Generate</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Printable Report Output -->
+                <div id="printableReport" class="card border-0 shadow-sm" style="display: none;">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold text-navy" id="reportTitle">Report Title</h5>
+                        <button class="btn btn-outline-secondary btn-sm no-print" onclick="window.print()">
+                            <i class="fa-solid fa-print me-1"></i> Print / Save PDF
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="text-center mb-4 pb-2 border-bottom">
+                            <h3 class="fw-bold mb-1">StockMate Inventory</h3>
+                            <p class="text-muted mb-0" id="reportTimestamp"></p>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <table class="table table-bordered align-middle mb-0">
+                                <thead class="table-light" id="reportTableHeader">
+                                    <!-- Populated by JS based on report type -->
+                                </thead>
+                                <tbody id="reportTableBody">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                                <tfoot id="reportTableFooter" class="fw-bold bg-light">
+                                    <!-- Populated by JS for totals -->
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/reports.js"></script>
+</body>
+</html>
